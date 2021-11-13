@@ -23,6 +23,7 @@ const fetchMyIP = function(callback) {
           callback(Error("IP field returned empty."));
         }
       } else {
+        //Non-200 status code
         const msg = `Status Code ${res.statusCode} when fetching IP. Response: ${body}`;
         callback(Error(msg), null);
       }
