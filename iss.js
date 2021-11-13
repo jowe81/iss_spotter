@@ -18,4 +18,20 @@ const fetchCoordsByIp = (ip, callback) => {
   });
 };
 
-module.exports = { fetchCoordsByIp };
+const fetchISSFlyOverTimes = (coords, callback) => {
+  const requestUrl = constants.ISS_FLYOVER_APP.API_ENDPOINT + `?lat=${coords.latitude}&lon=${coords.longitude}`;
+  request(requestUrl, (err, res, body) => {
+    if (!err) {
+      if (res.statusCode === 200) {
+        const data = JSON.parse(body);
+        callback(err, data.response);
+      } else {
+        callback(new Error(`Status Code ${res.statusCode} when fetching fly-over times. Response: ${body}`));
+      }
+    } else {
+      callback(new Error(`Request to ${constants.ISS_FLYOVER_APP.API_ENDPOINT} failed. Returned error: ${err}`));
+    }
+  });
+};
+
+module.exports = { fetchCoordsByIp, fetchISSFlyOverTimes };
