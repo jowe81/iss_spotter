@@ -16,7 +16,7 @@ const requestHelper = (requestUrl, callback, activityDescription) => {
 
     //The request went through but we've got a non-200 response code
     if (res.statusCode !== 200) {
-      msg = `Status Code ${res.statusCode}`;
+      msg = `Status Code ${res.statusCode} `;
       //Add activityDescription to the error message if present
       if (activityDescription) {
         msg += `when ${activityDescription}.`;
@@ -30,27 +30,8 @@ const requestHelper = (requestUrl, callback, activityDescription) => {
 };
 
 const fetchMyIP = (callback) => {
-  request(constants.IPIFY.API_ENDPOINT, (err, res, body) => {
-    if (!err) {
-      if (res.statusCode === 200) {
-        const data = JSON.parse(body); //Object expected
-        if (data.ip) {
-          //All good
-          callback(null, data.ip);
-        } else {
-          //No error but no data either
-          callback(Error("IP field returned empty."));
-        }
-      } else {
-        //Non-200 status code
-        const msg = `Status Code ${res.statusCode} when fetching IP. Response: ${body}`;
-        callback(Error(msg), null);
-      }
-    } else {
-      //Error - request failed
-      callback(err, null);
-    }
-  });
+  const requestUrl = constants.IPIFY.API_ENDPOINT;
+  requestHelper(requestUrl, callback, "fetching IP address");
 };
 
 const fetchCoordsByIp = (ip, callback) => {
@@ -75,7 +56,7 @@ const fetchISSFlyOverTimes = (coords, callback) => {
 const nextISSTimesForMyLocation = function(callback) {
   fetchMyIP((err, ip) => {
     if (err) return callback(err, null);
-    fetchCoordsByIp(ip, (err, coords) => {
+    fetchCoordsByIp(ip.ip, (err, coords) => {
       if (err) return callback(err, null);
       fetchISSFlyOverTimes(coords, (err, data) => {
         if (err) return callback(err, null);
