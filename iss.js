@@ -8,18 +8,24 @@ const { fetchMyIP } = require('./fetchip');
 const requestHelper = (requestUrl, callback, activityDescription) => {
   request(requestUrl, (err, res, body) => {
     let msg;
+
+    //The request itself returned an error
     if (err) {
       msg = `Request to ${constants.FREE_GEO_IP.API_ENDPOINT} failed. Returned error: ${err}`;
       return callback(new Error(msg), null);
     }
 
+    //The request went through but we've got a non-200 response code
     if (res.statusCode !== 200) {
       msg = `Status Code ${res.statusCode}`;
+      //Add activityDescription to the error message if present
       if (activityDescription) {
         msg += `when ${activityDescription}.`;
       }
-      callback(new Error(msg), null);
+      return callback(new Error(msg), null);
     }
+
+    //Success - return JSON-parsed data from response body
     callback(null, JSON.parse(body));
   });
 };
