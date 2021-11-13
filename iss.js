@@ -20,7 +20,6 @@ const requestHelper = (requestUrl, callback, activityDescription) => {
       }
       callback(new Error(msg), null);
     }
-
     callback(null, JSON.parse(body));
   });
 };
@@ -28,36 +27,11 @@ const requestHelper = (requestUrl, callback, activityDescription) => {
 const fetchCoordsByIp = (ip, callback) => {
   const requestUrl = constants.FREE_GEO_IP.API_ENDPOINT + ip + '?' + constants.FREE_GEO_IP.API_KEY;
   requestHelper(requestUrl, callback, "fetching coordinates for IP");
-  /*
-  request(requestUrl, (err, res, body) => {
-    if (!err) {
-      if (res.statusCode === 200) {
-        const { latitude, longitude } = JSON.parse(body);
-        callback(null, { latitude, longitude });
-      } else {
-        callback(new Error(`Status Code ${res.statusCode} when fetching coordinates for IP. Response: ${body}`));
-      }
-    } else {
-      callback(new Error(`Request to ${constants.FREE_GEO_IP.API_ENDPOINT} failed. Returned error: ${err}`));
-    }
-  });
-  */
 };
 
 const fetchISSFlyOverTimes = (coords, callback) => {
   const requestUrl = constants.ISS_FLYOVER_APP.API_ENDPOINT + `?lat=${coords.latitude}&lon=${coords.longitude}`;
-  request(requestUrl, (err, res, body) => {
-    if (!err) {
-      if (res.statusCode === 200) {
-        const data = JSON.parse(body);
-        callback(err, data.response);
-      } else {
-        callback(new Error(`Status Code ${res.statusCode} when fetching fly-over times. Response: ${body}`));
-      }
-    } else {
-      callback(new Error(`Request to ${constants.ISS_FLYOVER_APP.API_ENDPOINT} failed. Returned error: ${err}`));
-    }
-  });
+  requestHelper(requestUrl, callback, "fetching fly-over times");
 };
 
 /**
@@ -78,7 +52,7 @@ const nextISSTimesForMyLocation = function(callback) {
         if (err) {
           callback(err, null);
         } else {
-          callback(null, data);
+          callback(null, data.response);
         }
       });
     });
