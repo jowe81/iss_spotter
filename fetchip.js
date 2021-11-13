@@ -13,12 +13,18 @@ const IPIFY_API_URL = 'https://api.ipify.org?format=json';
 const fetchMyIP = function(callback) {
   request(IPIFY_API_URL, (err, res, body) => {
     if (!err) {
-      const data = JSON.parse(body); //Object expected
-      if (data.ip) {
-        callback(err, data.ip);
+      if (res.statusCode === 200) {
+        const data = JSON.parse(body); //Object expected
+        if (data.ip) {
+          //All good
+          callback(null, data.ip);
+        } else {
+          //No error but no data either
+          callback(Error("IP field returned empty."));
+        }
       } else {
-        //No error but no data either
-        callback();
+        const msg = `Status Code ${res.statusCode} when fetching IP. Response: ${body}`;
+        callback(Error(msg), null);
       }
     } else {
       //Error - request failed
