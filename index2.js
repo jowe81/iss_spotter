@@ -1,4 +1,5 @@
 const { nextISSTimesForMyLocation } = require('./iss_promised');
+const { printPassTimes } = require('./printPassTimes');
 
 //Copied from index.js
 const printPassTimes = (passTimes) => {
