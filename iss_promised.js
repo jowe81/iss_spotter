@@ -20,5 +20,13 @@ const fetchISSFlyOverTimes = (coordsInfo) => {
   return request(constants.ISS_FLYOVER_APP.API_ENDPOINT + `?lat=${coords.latitude}&lon=${coords.longitude}`);
 };
 
+const nextISSTimesForMyLocation = () => {
+  return fetchMyIP() //The return statement is critically important to return the promise chai!
+    .then(fetchCoordsByIP) //.then(ipInfo => fetchCoordsByIP(ipInfo)) can be shortened to just the function name!
+    .then(fetchISSFlyOverTimes) //same for .then(coordsInfo => fetchISSFlyOverTimes(coordsInfo))
+    .then(flyoverData => {
+      return JSON.parse(flyoverData).response;
+    });
+};
 
-module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
+module.exports = { nextISSTimesForMyLocation };
