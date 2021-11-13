@@ -1,6 +1,5 @@
 const request = require('request');
 const constants = require('./constants');
-const { fetchMyIP } = require('./fetchip');
 
 //Helper function to execute a request and deal with errors.
 //activityDescription (optional) is plain English (present progressive), like "fetching coordinates", used for error message
@@ -27,6 +26,30 @@ const requestHelper = (requestUrl, callback, activityDescription) => {
 
     //Success - return JSON-parsed data from response body
     callback(null, JSON.parse(body));
+  });
+};
+
+const fetchMyIP = (callback) => {
+  request(constants.IPIFY.API_ENDPOINT, (err, res, body) => {
+    if (!err) {
+      if (res.statusCode === 200) {
+        const data = JSON.parse(body); //Object expected
+        if (data.ip) {
+          //All good
+          callback(null, data.ip);
+        } else {
+          //No error but no data either
+          callback(Error("IP field returned empty."));
+        }
+      } else {
+        //Non-200 status code
+        const msg = `Status Code ${res.statusCode} when fetching IP. Response: ${body}`;
+        callback(Error(msg), null);
+      }
+    } else {
+      //Error - request failed
+      callback(err, null);
+    }
   });
 };
 
