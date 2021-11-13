@@ -8,6 +8,7 @@ Will output a list of upcoming opportunities to spot the ISS. Uses the following
 
 ## Dependencies:
 * [request](https://www.npmjs.com/package/request) ^2.88.2
+* [request-promise-native](https://www.npmjs.com/package/request-promise-native) ^1.0.9
 
 ## Install it:
 ```bash
@@ -17,9 +18,8 @@ npm install
 ```
 
 ## Use it:
-```bash
-npm run iss
-```
+* callback style: ```npm run iss```
+* with promises: ```npm run iss-promised```
 ## 
 
 ---
