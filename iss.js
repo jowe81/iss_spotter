@@ -2,9 +2,12 @@ const request = require('request');
 const constants = require('./constants');
 
 //Helper function to execute a request and deal with errors.
-//activityDescription (optional) is plain English (present progressive), like "fetching coordinates", used for error message
 //Expects JSON APIs and will return JSON on success
-const requestHelper = (requestUrl, callback, activityDescription) => {
+//  - activityDescription (optional) is plain English (present progressive),
+//    like "fetching coordinates", used for error message
+//  - keyToTargetData (optional): if passed, only that key from the response
+//    data will be returnd (doesn't support nested keys at this time)
+const requestHelper = (requestUrl, callback, activityDescription, keyToTargetData) => {
   request(requestUrl, (err, res, body) => {
     let msg;
 
@@ -25,13 +28,15 @@ const requestHelper = (requestUrl, callback, activityDescription) => {
     }
 
     //Success - return JSON-parsed data from response body
-    callback(null, JSON.parse(body));
+    let data;
+    keyToTargetData ? data = JSON.parse(body)[keyToTargetData] : data = JSON.parse(body);
+    callback(null, data);
   });
 };
 
 const fetchMyIP = (callback) => {
   const requestUrl = constants.IPIFY.API_ENDPOINT;
-  requestHelper(requestUrl, callback, "fetching IP address");
+  requestHelper(requestUrl, callback, "fetching IP address", "ip");
 };
 
 const fetchCoordsByIp = (ip, callback) => {
@@ -41,7 +46,7 @@ const fetchCoordsByIp = (ip, callback) => {
 
 const fetchISSFlyOverTimes = (coords, callback) => {
   const requestUrl = constants.ISS_FLYOVER_APP.API_ENDPOINT + `?lat=${coords.latitude}&lon=${coords.longitude}`;
-  requestHelper(requestUrl, callback, "fetching fly-over times");
+  requestHelper(requestUrl, callback, "fetching fly-over times", "response");
 };
 
 /**
@@ -56,12 +61,12 @@ const fetchISSFlyOverTimes = (coords, callback) => {
 const nextISSTimesForMyLocation = function(callback) {
   fetchMyIP((err, ip) => {
     if (err) return callback(err, null);
-    fetchCoordsByIp(ip.ip, (err, coords) => {
+    fetchCoordsByIp(ip, (err, coords) => {
       if (err) return callback(err, null);
       fetchISSFlyOverTimes(coords, (err, data) => {
         if (err) return callback(err, null);
         //All API calls succeeded!
-        callback(null, data.response);
+        callback(null, data);
       });
     });
   });
