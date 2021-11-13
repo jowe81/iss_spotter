@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "iss": "node index.js",
+    "iss-promised": "node index2.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
