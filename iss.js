@@ -2,8 +2,33 @@ const request = require('request');
 const constants = require('./constants');
 const { fetchMyIP } = require('./fetchip');
 
+//Helper function to execute a request and deal with errors.
+//activityDescription (optional) is plain English (present progressive), like "fetching coordinates", used for error message
+//Expects JSON APIs and will return JSON on success
+const requestHelper = (requestUrl, callback, activityDescription) => {
+  request(requestUrl, (err, res, body) => {
+    let msg;
+    if (err) {
+      msg = `Request to ${constants.FREE_GEO_IP.API_ENDPOINT} failed. Returned error: ${err}`;
+      return callback(new Error(msg), null);
+    }
+
+    if (res.statusCode !== 200) {
+      msg = `Status Code ${res.statusCode}`;
+      if (activityDescription) {
+        msg += `when ${activityDescription}.`;
+      }
+      callback(new Error(msg), null);
+    }
+
+    callback(null, JSON.parse(body));
+  });
+};
+
 const fetchCoordsByIp = (ip, callback) => {
   const requestUrl = constants.FREE_GEO_IP.API_ENDPOINT + ip + '?' + constants.FREE_GEO_IP.API_KEY;
+  requestHelper(requestUrl, callback, "fetching coordinates for IP");
+  /*
   request(requestUrl, (err, res, body) => {
     if (!err) {
       if (res.statusCode === 200) {
@@ -16,6 +41,7 @@ const fetchCoordsByIp = (ip, callback) => {
       callback(new Error(`Request to ${constants.FREE_GEO_IP.API_ENDPOINT} failed. Returned error: ${err}`));
     }
   });
+  */
 };
 
 const fetchISSFlyOverTimes = (coords, callback) => {
