@@ -8,7 +8,7 @@ const printPassTimes = (passTimes) => {
 
 nextISSTimesForMyLocation((error, passTimes) => {
   if (error) {
-    return console.log("It didn't work!", error);
+    return console.log("It didn't work!", error.message);
   }
   // success, print out the deets!
   printPassTimes(passTimes);

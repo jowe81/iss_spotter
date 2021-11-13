@@ -9,28 +9,33 @@ const constants = require('./constants');
 //    data will be returnd (doesn't support nested keys at this time)
 const requestHelper = (requestUrl, callback, activityDescription, keyToTargetData) => {
   request(requestUrl, (err, res, body) => {
-    let msg;
+    let msg; //Will hold error message
 
     //The request itself returned an error
     if (err) {
-      msg = `Request to ${constants.FREE_GEO_IP.API_ENDPOINT} failed. Returned error: ${err}`;
+      msg = `Request to ${constants.FREE_GEO_IP.API_ENDPOINT} failed`
+          + `${activityDescription ? ` when ${activityDescription}` : ``}.\nError: ${err.message}`;
       return callback(new Error(msg), null);
     }
 
     //The request went through but we've got a non-200 response code
     if (res.statusCode !== 200) {
-      msg = `Status Code ${res.statusCode} `;
-      //Add activityDescription to the error message if present
-      if (activityDescription) {
-        msg += `when ${activityDescription}.`;
-      }
+      msg = `Status Code ${res.statusCode}${activityDescription ? ` when ${activityDescription}` : ``}.`;
+      return callback(new Error(msg), null);
+    }
+
+    //So far no errors, but don't know yet if response is valid JSON and can be parsed
+    let data;
+    try {
+      data = JSON.parse(body);
+    } catch (e) {
+      //Returned data is not valid JSON
+      msg = `JSON parser failed${activityDescription ? ` when ${activityDescription}.` : `.` } ${e.message}`;
       return callback(new Error(msg), null);
     }
 
     //Success - return JSON-parsed data from response body
-    let data;
-    keyToTargetData ? data = JSON.parse(body)[keyToTargetData] : data = JSON.parse(body);
-    callback(null, data);
+    keyToTargetData ? callback(null, data[keyToTargetData]) : callback(null, data);
   });
 };
 
